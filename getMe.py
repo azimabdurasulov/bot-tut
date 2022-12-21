@@ -8,5 +8,7 @@ if response.status_code == 200:
     data = response.json()
     updates = data['result']
     for update in updates:
-        msg = update['message']['text']
-        print(msg)
+        msg = update['message']
+        text = msg['text']
+        user = msg['from']
+        print(user)
