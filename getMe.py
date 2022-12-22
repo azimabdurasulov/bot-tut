@@ -1,30 +1,43 @@
 import requests
 
-TOKEN = '5888802954:AAG1jeTE-CAQD2H7hFRje-CH9Yj_Yd6I7_o'
+TOKEN = '5568968030:AAEjux10tuYrcU8yrmAIDWSC0i-ZJgwuRLg'
 
 def get_updates(TOKEN):
-    response = requests.get(f'https://api.telegram.org/bot{TOKEN}/getUpdates')
+    updates = requests.get(f'https://api.telegram.org/bot{TOKEN}/getUpdates')
+    updates = updates.json()
+    return updates
 
+def get_lastupdate(updates):
+    last_update = updates['result'][-1]
+    chat_id = last_update['message']['chat']['id']
+    text = last_update['message']['text']
+    another_text = text
+    
+    
+    if text in another_text  :
+            text_msg = text
+        
+    else:
+            text_msg = 'Qayta harakat qilib kuring!'
+    
+    message_id = last_update['message']['message_id']
+    return chat_id,text,message_id
 
-    if response.status_code == 200:
-        data = response.json()
-        updates = data['result']
-        for update in updates:
-            msg = update['message']
-            text = msg['text']
-            user = msg['from']
-            print(user['id'])
+def send_message(TOKEN,chat_id,text):
+    data = {
+            'chat_id':chat_id,
+            'text':text
+        }
 
-get_updates(TOKEN)
+    r = requests.post(url = f'https://api.telegram.org/bot{TOKEN}/sendMessage',data=data)    
 
+new_message = -1
 
-def send_msg(TOKEN, payload):
-    response = requests.get(f'https://api.telegram.org/bot{TOKEN}/sendMessage', params=payload)
+while True:
+    updates = get_updates(TOKEN)
+    lastupdate = get_lastupdate(updates)
+    chat_id,text,last_message_id = lastupdate
 
-
-payload = {
-    'chat_id': '1258594598',
-    'text': 'Welcome to my bot!'
-}
-
-send_msg(TOKEN, payload)
+    if new_message != last_message_id:
+        send_message(TOKEN,chat_id=chat_id,text=text)
+        new_message = last_message_id
