@@ -2,6 +2,8 @@ import requests
 
 TOKEN = '5568968030:AAEjux10tuYrcU8yrmAIDWSC0i-ZJgwuRLg'
 
+header = "f430c121f8694734bd0b530c6a059ef2"
+
 def get_updates(TOKEN):
     updates = requests.get(f'https://api.telegram.org/bot{TOKEN}/getUpdates')
     updates = updates.json()
@@ -29,7 +31,7 @@ def send_message(TOKEN,chat_id,text):
             'text':text
         }
 
-    r = requests.post(url = f'https://api.telegram.org/bot{TOKEN}/sendMessage',data=data)    
+    r = requests.post(url = f'https://api.telegram.org/bot{TOKEN}/sendMessage', params=data, headers=header)    
 
 new_message = -1
 
