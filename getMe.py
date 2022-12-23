@@ -2,42 +2,31 @@ import requests
 
 TOKEN = '5568968030:AAEjux10tuYrcU8yrmAIDWSC0i-ZJgwuRLg'
 
-def get_updates(TOKEN):
-    updates = requests.get(f'https://api.telegram.org/bot{TOKEN}/getUpdates')
-    updates = updates.json()
-    return updates
+# get last update data -> update_id, chat_id, text
+def last_update_data():
+    response = requests.get(f'https://api.telegram.org/bot{TOKEN}/getUpdates')
+    if response.status_code == 200:
+        data = response.json()
+        last_update = data['result'][-1]
+        update_id = last_update['update_id']
+        chat_id = last_update['message']['from']['id']
+        text = last_update['message']['text']
 
-def get_lastupdate(updates):
-    last_update = updates['result'][-1]
-    chat_id = last_update['message']['chat']['id']
-    text = last_update['message']['text']
-    another_text = text
-    
-    
-    if text in another_text  :
-            text_msg = text
-        
-    else:
-            text_msg = 'Qayta harakat qilib kuring!'
-    
-    message_id = last_update['message']['message_id']
-    return chat_id,text,message_id
+        return update_id, chat_id, text
 
-def send_message(TOKEN,chat_id,text):
-    data = {
-            'chat_id':chat_id,
-            'text':text
-        }
+# send message
+def send_message(chat_id, text):
+    payload = {
+        'chat_id': chat_id,
+        'text': text,
+    }
+    response = requests.get(f'https://api.telegram.org/bot{TOKEN}/sendMessage', params=payload)
 
-    r = requests.post(url = f'https://api.telegram.org/bot{TOKEN}/sendMessage',params=data)    
-
-new_message = -1
+last_update_id, _, _ = last_update_data()
 
 while True:
-    updates = get_updates(TOKEN)
-    lastupdate = get_lastupdate(updates)
-    chat_id,text,last_message_id = lastupdate
+    current_update_id, chat_id, text = last_update_data()
 
-    if new_message != last_message_id:
-        send_message(TOKEN,chat_id=chat_id,text=text)
-        new_message = last_message_id
+    if last_update_id != current_update_id:
+        send_message(chat_id, text)
+        last_update_id = current_update_id
